@@ -11,7 +11,7 @@ public class CharacterMovement : MonoBehaviour
     private void Awake()
     {
         agent = this.GetComponent<NavMeshAgent>();
-
+        agent.updatePosition = true;
     }
 
     private void Update()
