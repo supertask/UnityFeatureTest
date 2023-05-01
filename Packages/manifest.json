@@ -13,6 +13,7 @@
   ],
   "dependencies": {
     "jp.supertask.shaderlibcore": "1.0.5",
+    "jp.keijiro.klak.motion": "1.0.2",
     "jp.keijiro.danish-statues": "1.0.0",
     "com.unity.collab-proxy": "1.17.7",
     "com.unity.feature.development": "1.0.1",
