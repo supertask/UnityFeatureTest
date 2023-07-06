@@ -19,7 +19,7 @@ public class CharacterMovement : MonoBehaviour
         _animator.enabled = false;
 
         _agent.updatePosition = true;
-        _agent.updateRotation = true;
+        _agent.updateRotation = false;
 
     }
 
