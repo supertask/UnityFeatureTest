@@ -42,8 +42,8 @@ public class LineOfTime : NetworkBehaviour
 
         //timeType = TimeType.Server;
         //timeType = TimeType.Local;
-        timeType = TimeType.Flower;
-        //timeType = TimeType.Custom;
+        //timeType = TimeType.Flower;
+        timeType = TimeType.Custom;
 
         _fbmOffset.Value = new Vector3(
             0, UnityEngine.Random.Range(- _movingHalfSize.y, _movingHalfSize.y), 0
@@ -80,7 +80,7 @@ public class LineOfTime : NetworkBehaviour
         }
 
 
-        currentTime = startTime - NetworkManager.Singleton.LocalTime.TimeAsFloat;
+        //currentTime = startTime - NetworkManager.Singleton.LocalTime.TimeAsFloat;
 
         // Create noise-based movements within the screen bounds
         double serverTime = NetworkManager.Singleton.ServerTime.Time;
@@ -101,7 +101,7 @@ public class LineOfTime : NetworkBehaviour
         }
         else if (timeType == TimeType.Custom)
         {
-            time = currentTime * fbmFrequency;
+            time = (localTime - serverTime) * fbmFrequency;
         }
         else if (timeType == TimeType.Flower)
         {
@@ -126,8 +126,8 @@ public class LineOfTime : NetworkBehaviour
 
         if (_textMeshPro != null)
         {
-            string debugLine = string.Format("Custom Time: {0:F4}, Start Time: {1:F4}, Server Time: {2:F4}, \nLocal Time: {3:F4}, Flower time: {4:F4}",
-                currentTime, startTime, serverTime, localTime, flowerTime);
+            string debugLine = string.Format("Line time: {0:F4}, Server Time: {1:F4}, \nLocal Time: {2:F4}, Flower time: {3:F4}",
+                time, serverTime, localTime, flowerTime);
             _textMeshPro.SetText(debugLine);
         }
 

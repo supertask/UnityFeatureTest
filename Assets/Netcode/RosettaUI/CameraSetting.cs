@@ -24,14 +24,6 @@ namespace InteractiveVJ
 
         void Start()
         {
-            //if (NetworkManager.Singleton.IsClient)
-            //{
-            //    spoutSender.spoutName = "Client"; //cameraSpoutName.Get();
-            //}
-            //else
-            //{
-            //    spoutSender.spoutName = "Server";
-            //}
             SetCameraResolution((int)cameraResolution.Get().x, (int)cameraResolution.Get().y);
         }
 

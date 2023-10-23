@@ -31,6 +31,7 @@ namespace InteractiveVJ {
             mainWindow =  UI.Window(
                 "Real Mapping Sim",
                 UI.WindowLauncher<CameraSetting>("Camera"),
+                UI.WindowLauncher<SyncTimeSetting>("SyncTime"),
                 //UI.WindowLauncher<SceneSetting>("Scene setting"),
                 UI.WindowLauncher(UI.Window(nameof(PrefsSearch), PrefsSearch.CreateElement())),
                 UI.Space().SetHeight(15f),

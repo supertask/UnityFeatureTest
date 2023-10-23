@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class SimpleMovement : MonoBehaviour
 {
     private NavMeshAgent _agent;
-    public Vector3 _dest = new Vector3(3, 0, 0);
+    public Vector3 _dest = new Vector3(3, 5, 0);
 
     private void Awake()
     {
@@ -18,7 +18,7 @@ public class SimpleMovement : MonoBehaviour
 
     private void Update()
     {
-        transform.rotation = Quaternion.Euler(new Vector3(50, 0, 50));
+        //transform.rotation = Quaternion.Euler(new Vector3(50, 0, 50));
 
     }
 }
