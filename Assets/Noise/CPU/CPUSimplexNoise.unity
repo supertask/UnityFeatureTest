@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,6 +123,153 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &102115067
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 102115068}
+  - component: {fileID: 102115069}
+  m_Layer: 0
+  m_Name: CPUSimplexNoise
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &102115068
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102115067}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &102115069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102115067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1e0ad337ae78e418a493c85e5987db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tsuruData:
+    landingMaterial:
+      tsuruTexColor: 1
+      colorFractalIntencity: 0
+      colorFractalSaturation: 0
+      transparency: 1
+      contrast: 1
+      saturation: 1
+      brightnessRange: {x: 0.3, y: 1}
+      gamma: 1
+      blackColorLevelContrast: 0
+    tsuruLandingData:
+      numOfTsurus: 300
+      scaleRange: {x: 0.72, y: 0.88}
+      initRotationYAngle: 5
+      rotationYAngle: {x: -10, y: 10}
+      rotationYSinFrequency: {x: 0, y: 0.1}
+      animationUsage: 0.5
+      animationSpeed: {x: 0, y: 0}
+      interactionDuration: {x: 8, y: 10}
+      batchSize: 100
+      landingDelayRange: {x: 0.1, y: 0.2}
+      takeOffDelayRange: {x: 0.1, y: 0.2}
+      landingDurationTime: 200
+      lastSpurtBalance: 1
+      overlapDuringTime: 2
+      colliderScreenSizeX: 0.9
+      timeBetweenLandingsMin: 5
+      timeBetweenLandingsMax: 10
+      interactionRate: 0.5
+      firstLandingDelay: 150
+    tsuruLandingMapData:
+      noiseMapScaleAndOffset: {x: 6, y: 10, z: 1, w: 0}
+      noiseCutThreshold: 0
+      dissolveNoiseMapScaleAndOffset: {x: 2, y: 6, z: 1, w: 0}
+      dissolveAmount: 0.7
+      area1EllipseCenter: {x: 0.25, y: 0.5}
+      area1EllipseRadius: {x: 0.125, y: 0.2}
+      area2EllipseCenter: {x: 0.75, y: 0.5}
+      area2EllipseRadius: {x: 0.125, y: 0.2}
+      phase1TsuruCountThreshold: 10
+      phase2TsuruCountThreshold: 200
+      showMap: 1
+      debugSphereSize: 0.1
+    tsuruLandingInteractionData:
+      animationSpeed: {x: 0.9, y: 1.1}
+    flyMaterial:
+      tsuruTexColor: 1
+      colorFractalIntencity: 0
+      colorFractalSaturation: 0
+      transparency: 1
+      contrast: 1
+      saturation: 1
+      brightnessRange: {x: 0.3, y: 1}
+      gamma: 1
+      blackColorLevelContrast: 0
+    flyTsuruData:
+      tsuruFlyMaxNum: 30
+      travelDirection: 1
+      flyTsuruScaleRange: {x: 0.7, y: 0.7}
+    startFlying:
+      startForwardSpeed: 0.3
+      endForwardSpeed: 0.5
+      startFlyingXRange: {x: 0.64, y: 0.67}
+      flyDownDuration: 15
+      startPositionOffsetY: 7
+      startPositionOffsetZ: 2
+      flyDownCurvePower: 1
+    approaching:
+      forwardSpeedApproaching: 0.45
+      approachingYRange: {x: 1, y: 1.2}
+      startHangDelayTimeFromApproach: 0
+      startHangTsuruAnimSpeed: 1.2
+      startHangTsuruAnimTransitionFixedDuration: 0.8
+      distanceXToBeginningOfArrangeHeight: 2
+      distanceXToBeginningOfReduceSpeed: 1.07
+    grabbedAndFlyUp:
+      forwardSpeedFlyUp: 1
+      flyUpDuration: 10
+      flyUpPositionOffsetY: 6.5
+      xAxisSwayingAngle: {x: 22, y: 27}
+      xAxisSwayingNormalTimeSmoothstep: {x: 1, y: 0}
+      xAxisSwayingSinFrequency: 10
+      xAxisSwayingSinOffset: 0.7853982
+      flyUpCurvePower: 4
+    waitingTimeInSky: {x: 300, y: 320}
+    delayTimeForAllDropOff: {x: 2, y: 4}
+    dropOff:
+      flyDownXRange: {x: 0.65, y: 0.68}
+      forwardSpeedFlyingDownStart: 0.45
+      forwardSpeedFlyingDownEnd: 0.5
+      forwardSpeedHandsOff: 0.25
+      endHangTsuruAnimSpeed: 1
+      flyDownDuration: 12
+      startWalkToHandsOffDuration: 0.6
+      flyDownReduceSpeedDuration: 1
+      flyDownCurvePower: 4
+      releaseHandsDelayTime: 1.2
+      animTransitionDurationLoopAndWalk: 0.5
+    flyUpAfterDropOff:
+      forwardSpeedFlyUp: 1.2
+      flyUpDuration: 10
+      flyUpCurvePower: 4
 --- !u!1 &504907956
 GameObject:
   m_ObjectHideFlags: 0
@@ -269,8 +416,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 3
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -293,11 +440,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1663928798}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 5.08, y: 1, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
