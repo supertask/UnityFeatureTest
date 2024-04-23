@@ -200,13 +200,14 @@ MonoBehaviour:
       firstLandingDelay: 150
     tsuruLandingMapData:
       noiseMapScaleAndOffset: {x: 6, y: 10, z: 1, w: 0}
-      noiseCutThreshold: 0
+      noiseCutThreshold: 0.5
       dissolveNoiseMapScaleAndOffset: {x: 2, y: 6, z: 1, w: 0}
       dissolveAmount: 0.7
-      area1EllipseCenter: {x: 0.25, y: 0.5}
-      area1EllipseRadius: {x: 0.125, y: 0.2}
-      area2EllipseCenter: {x: 0.75, y: 0.5}
-      area2EllipseRadius: {x: 0.125, y: 0.2}
+      area1EllipseCenter: {x: 0.235, y: 0.5}
+      area1EllipseRadius: {x: 0.185, y: 0.2}
+      area2EllipseCenter: {x: 0.8, y: 0.5}
+      area2EllipseRadius: {x: 0.19, y: 0.2}
+      randomWalkStepSize: {x: 0.2, y: 0.2}
       phase1TsuruCountThreshold: 10
       phase2TsuruCountThreshold: 200
       showMap: 1
@@ -417,7 +418,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 3
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -440,11 +441,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1663928798}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 5.08, y: 1, z: 5}
+  m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
+  m_LocalPosition: {x: 5.08, y: 4, z: -0.35}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}

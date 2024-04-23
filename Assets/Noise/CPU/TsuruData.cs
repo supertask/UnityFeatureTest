@@ -6,61 +6,13 @@ using UnityEngine;
 //
 namespace CPUNoise.Data
 {
-    [AttributeUsage(AttributeTargets.Field)]
-    class LabelText : Attribute
-    {
-        internal readonly string text;
-        internal LabelText(string text)
-        {
-            this.text = text;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Field)]
-    class EnumType : Attribute
-    {
-        internal readonly Type enumType;
-        internal EnumType(Type enumType)
-        {
-            this.enumType = enumType;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Field)]
-    class Slider : Attribute
-    {
-        internal readonly float range_from;
-        internal readonly float range_to;
-        internal Slider(float from, float to)
-        {
-            this.range_from = from;
-            this.range_to = to;
-        }
-    }
-
-    public enum TravelDirection
-    {
-        RightToLeft = 0,
-        LeftToRight,
-        Either
-    }
-
-    public enum ThemeColor
-    {
-        Light,
-        Dark,
-    }
-
-
-
-
     [Serializable]
     public class TsuruData
     {
-        [LabelText("Landing Material")] public TsuruLandingMaterialData landingMaterial = new TsuruLandingMaterialData();
-        [LabelText("Landing General")] public TsuruLandingData tsuruLandingData = new TsuruLandingData();
-        [LabelText("Landing Map")] public TsuruLandingMapData tsuruLandingMapData = new TsuruLandingMapData();
-        [LabelText("Landing Interaction")] public TsuruLandingInteractionData tsuruLandingInteractionData = new TsuruLandingInteractionData();
+        [LabelText("Landing Material")] public TsuruLandingMaterialData landingMaterial;
+        [LabelText("Landing General")] public TsuruLandingData tsuruLandingData;
+        [LabelText("Landing Map")] public TsuruLandingMapData tsuruLandingMapData;
+        [LabelText("Landing Interaction")] public TsuruLandingInteractionData tsuruLandingInteractionData;
 
         [LabelText("Flying Material")] public TsuruFlyMaterialData flyMaterial;
         [LabelText("Flying General")]  public FlyTsuruData flyTsuruData;
@@ -80,6 +32,7 @@ namespace CPUNoise.Data
     public class FlyTsuruData
     {
         public int tsuruFlyMaxNum = 30;
+        [EnumType(typeof(StageKind))] public StageKind startStage;
         [EnumType(typeof(TravelDirection))] public TravelDirection travelDirection = TravelDirection.LeftToRight;
         [Slider(0f, 1f)] public Vector2 flyTsuruScaleRange = new Vector2(0.7f, 0.7f);
     }
@@ -91,30 +44,39 @@ namespace CPUNoise.Data
     public class TsuruLandingData
     {
         public int numOfTsurus = 300;
+        public string randomSeeds = "1,2,3";
 
         public Vector2 scaleRange = new Vector2(0.72f, 0.88f);
         public float initRotationYAngle = 5f; // max deviation in degrees from X axis
         public Vector2 rotationYAngle = new Vector2(-10f, 10f);
         public Vector2 rotationYSinFrequency = new Vector2(0f, 0.1f);
         public float animationUsage = 0.5f;
-        public Vector2 animationSpeed = new Vector2(0f, 0f);
+        //public Vector2 animationSpeed = new Vector2(0f, 0f);
         public Vector2 interactionDuration = new Vector2(8f, 10f);
 
-        public int batchSize = 100;
-        public Vector2 landingDelayRange = new Vector2(0.1f, 0.2f);
-        public Vector2 takeOffDelayRange = new Vector2(0.1f, 0.2f);
-        public float landingDurationTime = 200.0f;
-        public float lastSpurtBalance = 1.0f;
-        public float overlapDuringTime = 2.0f;
+        public float phase1TsuruCount = 40;
+        public float phase1RadiusUsage = 0.65f;
 
+        public float phase1DurationSeconds = 60f;
+        public float waitSecondsBetweenPhase1And2 = 40f;
+        public float phase2DurationSeconds = 15f;
+
+
+        //public float landingDurationTime = 180.0f;
+
+        //public Vector2 landingDelayRange = new Vector2(0.1f, 0.2f);
+        public Vector2 takeOffDelayRange = new Vector2(0.1f, 0.2f);
+        //public float lastSpurtBalance = 1.0f;
+        public float overlapDuringTime = 2.0f;
+        public int batchSize = 100;
         public float colliderScreenSizeX = 0.9f;
 
-        public float timeBetweenLandingsMin = 5f; // time between each "wave" of tsurus (between one wave finishing takeoff and the next wave starting landing)
-        public float timeBetweenLandingsMax = 10f;
+        //public float timeBetweenLandingsMin = 5f; // time between each "wave" of tsurus (between one wave finishing takeoff and the next wave starting landing)
+        //public float timeBetweenLandingsMax = 10f;
 
         public float interactionRate = 0.5f; // ƒCƒ“ƒ^ƒ‰ƒNƒVƒ‡ƒ“‚Å”½‰ž‚³‚¹‚éŠ„‡
 
-        public float firstLandingDelay = 2.5f * 60f; //Å‰‚É’ß‚ª’…—¤‚·‚é‚Æ‚«‚Í2•ª30•b‚Ì’x‰„
+        //public float firstLandingDelay = 2.5f * 60f; //Å‰‚É’ß‚ª’…—¤‚·‚é‚Æ‚«‚Í2•ª30•b‚Ì’x‰„
     }
 
 
@@ -122,26 +84,23 @@ namespace CPUNoise.Data
     public class TsuruLandingMapData
     {
         [LabelText("Map threshold")]
-        public Vector4 noiseMapScaleAndOffset = new Vector4(0.4f, 0.7f, 0, 0);
+        public Vector4 noiseMapScaleAndOffset = new Vector4(6f, 10f, 0, 0);
 
         [LabelText("Noise cut threshold (v > 0.675 means more gathering, else means distributed. )")]
-        public float noiseCutThreshold = 0.5f;
+        public float noiseCutThreshold = 0.2f;
 
-        public Vector4 dissolveNoiseMapScaleAndOffset = new Vector4(3f, 3f, 0, 0);
+        public Vector4 dissolveNoiseMapScaleAndOffset = new Vector4(2f, 6f, 0, 0);
         public float dissolveAmount = 0.5f;
 
         public Vector2 area1EllipseCenter = new Vector2(0.25f, 0.5f);
-        public Vector2 area1EllipseRadius =  new Vector2(0.15f, 0.2f);
+        public Vector2 area1EllipseRadius =  new Vector2(0.125f, 0.2f);
 
         public Vector2 area2EllipseCenter = new Vector2(0.75f, 0.5f);
-        public Vector2 area2EllipseRadius =  new Vector2(0.15f, 0.2f);
+        public Vector2 area2EllipseRadius =  new Vector2(0.125f, 0.2f);
 
+        public Vector2 randomWalkStepSize = new Vector2(0.2f, 0.2f);
 
-        [LabelText("Phase1 Tsuru count")]
-        public int phase1TsuruCountThreshold = 10;
-
-        [LabelText("Phase2 Tsuru count")]
-        public int phase2TsuruCountThreshold = 200;
+        public string mapSeeds = "6";
 
         public bool showMap = true;
         public float debugSphereSize = 0.1f;
@@ -164,7 +123,7 @@ namespace CPUNoise.Data
         public float endForwardSpeed = 0.5f;
 
         [LabelText("Start flying position X (random a ~ b) [0 - 1]")]
-        public Vector2 startFlyingXRange = new Vector2(0.64f, 0.67f);
+        public Vector2 startFlyingXRange = new Vector2(0.1f, 0.12f);
         //public Vector2 startFlyingXRange = new Vector2(8, 14); //TODO: ‚ ‚Æ‚Å‚¯‚·
 
         [LabelText("Fly down Duration [seconds]")]
@@ -246,6 +205,9 @@ namespace CPUNoise.Data
 
         public Vector2 flyDownXRange = new Vector2(0.65f, 0.68f);
 
+        [LabelText("Fly up position offset Y [meter]")]
+        public float flyUpPositionOffsetY = 6.5f;
+
         //
         // Fly down, Release hands, Fly up tsuru only
         //
@@ -316,5 +278,8 @@ namespace CPUNoise.Data
         [Slider(1, 5f)] public float gamma = 1f;
         [Slider(0, 1f)] public float blackColorLevelContrast = 0.0f;
     }
+
+
+
 
 }

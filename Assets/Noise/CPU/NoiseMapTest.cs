@@ -1,9 +1,12 @@
 using System.Threading;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using nobnak.Gist;
-using CPUNoise.Data;
+
 using Cysharp.Threading.Tasks;
+
+using CPUNoise.Data;
 
 namespace CPUNoise
 {
@@ -27,15 +30,29 @@ namespace CPUNoise
             }
         }
 
+
+        public TsuruLandingData tsuruLandingData
+        {
+            get { return tsuruData.tsuruLandingData; }
+        }
+        public TsuruLandingMapData mapData
+        {
+            get { return tsuruData.tsuruLandingMapData; }
+        }
+
         private Material unlitMaterial;
         private GameObject debugSpheresParent;
         private GameObject[] debugSpheres;
         private int _numTsurus = 10000;
         private List<Vector3> positions;
-        private Vector2 normalizedPos;
+        private Vector2 nextPosition;
         private Vector2 randomWalkStepSize = new Vector2(0.15f, 0.25f);
         private TsuruData lastTsuruData;
+        private Vector2[] previousPositions;
 
+
+        private int randomSeed = 0;
+        private int mapSeed = 0;
 
         void Start()
         {
@@ -48,7 +65,22 @@ namespace CPUNoise
             this.unlitMaterial = new Material(Shader.Find("Unlit/Color"));
             this.unlitMaterial.color = Color.red;
 
-            this.normalizedPos = new Vector2(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
+            this.nextPosition = new Vector2(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
+
+            this.previousPositions = new Vector2[2];
+            this.previousPositions[0] = new Vector2(
+                mapData.area1EllipseCenter.x + Random.Range(mapData.area1EllipseRadius.x, mapData.area1EllipseRadius.y),
+                mapData.area1EllipseCenter.y + Random.Range(mapData.area1EllipseRadius.x, mapData.area1EllipseRadius.y)
+            );
+            this.previousPositions[1] = new Vector2(
+                mapData.area2EllipseCenter.x + Random.Range(mapData.area2EllipseRadius.x, mapData.area2EllipseRadius.y),
+                mapData.area2EllipseCenter.y + Random.Range(mapData.area2EllipseRadius.x, mapData.area2EllipseRadius.y)
+            );
+
+            var mapSeedList = mapData.mapSeeds.Split(',').Select(int.Parse).ToList();
+            var randomSeedList = tsuruLandingData.randomSeeds.Split(',').Select(int.Parse).ToList();
+            this.mapSeed = mapSeedList[Random.Range(0, mapSeedList.Count)];
+            this.randomSeed = randomSeedList[Random.Range(0, randomSeedList.Count)];
 
             CreateSphere();
             ShuffleTsuruPositions();
@@ -87,43 +119,60 @@ namespace CPUNoise
         }
 
 
-        private void CalcRandomWalkPosition()
+        private Vector3 GetRandomWalkPosition(int groupIndex)
         {
             float angle = Random.Range(0.0f, 360.0f) * Mathf.Deg2Rad;
-            float deltaX = Mathf.Cos(angle) * Random.Range(randomWalkStepSize.x, randomWalkStepSize.y);
-            float deltaY = Mathf.Sin(angle) * Random.Range(randomWalkStepSize.x, randomWalkStepSize.y);
+            float deltaX = Mathf.Cos(angle) * Random.Range(mapData.randomWalkStepSize.x, mapData.randomWalkStepSize.y);
+            float deltaY = Mathf.Sin(angle) * Random.Range(mapData.randomWalkStepSize.x, mapData.randomWalkStepSize.y);
 
-            normalizedPos += new Vector2(deltaX, deltaY);
-            normalizedPos.x = Mathf.Clamp(normalizedPos.x, 0.0f, 1.0f);
-            normalizedPos.y = Mathf.Clamp(normalizedPos.y, 0.0f, 1.0f);
+            this.previousPositions[groupIndex] += new Vector2(deltaX, deltaY);
+
+            // 1.0で剰余を取る前に、負の値を正の範囲に調整
+            float wrapX = (this.previousPositions[groupIndex].x % 1.0f + 1.0f) % 1.0f;
+            float wrapY = (this.previousPositions[groupIndex].y % 1.0f + 1.0f) % 1.0f;
+
+
+            if (groupIndex == 0) {
+                this.previousPositions[groupIndex].x = wrapX % 0.5f;
+            } else if (groupIndex == 1) {
+                this.previousPositions[groupIndex].x = 0.5f + (wrapX % 0.5f);
+            }
+            this.previousPositions[groupIndex].y = wrapY % 1.0f;
+            return this.previousPositions[groupIndex];
         }
+
 
         void ShuffleTsuruPositions()
         {
             this.positions = new List<Vector3>();
             var mapData = tsuruData.tsuruLandingMapData;
-            int j = 0;
+            int index = 0;
 
             while (positions.Count < _numTsurus )
             {
-                if (j > 100000) {
+                if (index > 100000) {
                     Debug.LogError("Infinite loop detected on TsuruLanding calculation.");
                     break;
                 }
 
                 //Vector2 nomalizedPos = new Vector2(Random.Range(0.0f, 1.0f), Random.Range(0.0f, 1.0f));
-                CalcRandomWalkPosition();
+                Vector3 nextPosition;
+                if (index % 2 == 0) {
+                    nextPosition = GetRandomWalkPosition(0);
+                } else {
+                    nextPosition = GetRandomWalkPosition(1);
+                }
 
                 // この条件は noiseValue が高いほど true になる確率が高くなる
-                if (IsInMap(normalizedPos))
+                if (IsInMap(positions.Count, nextPosition))
                 {
-                    float x = normalizedPos.x * 10;
-                    float z = normalizedPos.y * 10;
+                    float x = nextPosition.x * 10;
+                    float z = nextPosition.y * 20;
                     var newPos = new Vector3(x, 0, z);
                     positions.Add(newPos);
                 }
 
-                j++;
+                index++;
             }
 
             // リストの位置にツルを配置
@@ -141,40 +190,41 @@ namespace CPUNoise
 
 
         //楕円の形のディゾルブでフィルタリング
-        private bool IsInEllipseDissolve(Vector2 nomalizedPos, Vector2 ellipseCenter, Vector2 ellipseRadius, float dissolveAmount)
+        private bool IsInEllipseDissolve(Vector2 normalizedPos, Vector2 ellipseCenter, Vector2 ellipseRadius, float dissolveAmount, float mapRand)
         {
-            var mapData = tsuruData.tsuruLandingMapData;
             float distance = Mathf.Sqrt(
-                Mathf.Pow((nomalizedPos.x - ellipseCenter.x) / ellipseRadius.x, 2) +
-                Mathf.Pow((nomalizedPos.y - ellipseCenter.y) / ellipseRadius.y, 2)
+                Mathf.Pow( (normalizedPos.x - ellipseCenter.x) / ellipseRadius.x, 2 ) +
+                Mathf.Pow( (normalizedPos.y - ellipseCenter.y) / ellipseRadius.y, 2 )
             );
             float snoiseForDissolve = (1.0f + (float)SimplexNoise.Noise(
-                (double)(nomalizedPos.x * mapData.dissolveNoiseMapScaleAndOffset.x + mapData.dissolveNoiseMapScaleAndOffset.z),
-                (double)(nomalizedPos.y * mapData.dissolveNoiseMapScaleAndOffset.y + mapData.dissolveNoiseMapScaleAndOffset.w)
+                (double)(normalizedPos.x * mapData.dissolveNoiseMapScaleAndOffset.x + mapData.dissolveNoiseMapScaleAndOffset.z),
+                (double)(normalizedPos.y * mapData.dissolveNoiseMapScaleAndOffset.y + mapData.dissolveNoiseMapScaleAndOffset.w + mapRand)
             )) / 2.0f; // 0 ~ 1
-            float dissolveFactor = 1 - distance + (snoiseForDissolve * distance * dissolveAmount); // 0.1はノイズの影響度合い
+            float dissolveFactor = 1 - distance + snoiseForDissolve * dissolveAmount; // 0.1はノイズの影響度合い
             return dissolveFactor > 0.0f;
         }
 
 
-        private bool IsInMap(Vector2 nomalizedPos)
+        private bool IsInMap(int tsuruIndex, Vector2 normalizedPos)
         {
-            var mapData = tsuruData.tsuruLandingMapData;
-
-            float snoiseForMap = (1.0f + (float)SimplexNoise.Noise(
-                (double)(nomalizedPos.x * mapData.noiseMapScaleAndOffset.x + mapData.noiseMapScaleAndOffset.z),
-                (double)(nomalizedPos.y * mapData.noiseMapScaleAndOffset.y + mapData.noiseMapScaleAndOffset.w)
+            float mapRand = mapSeed.RandomValueRange(0f, 10f);
+            float snoiseForMap = (1.0f + (float) SimplexNoise.Noise(
+                (double) (normalizedPos.x * mapData.noiseMapScaleAndOffset.x + mapData.noiseMapScaleAndOffset.z),
+                (double) (normalizedPos.y * mapData.noiseMapScaleAndOffset.y + mapData.noiseMapScaleAndOffset.w + mapRand)
             )) / 2.0f; // 0 ~ 1
 
-            bool isInArea1 = IsInEllipseDissolve(nomalizedPos, mapData.area1EllipseCenter, mapData.area1EllipseRadius, mapData.dissolveAmount);
-            bool isInArea2 = IsInEllipseDissolve(nomalizedPos, mapData.area2EllipseCenter, mapData.area2EllipseRadius, mapData.dissolveAmount);
+            float progress = Mathf.Clamp(tsuruIndex, tsuruLandingData.phase1TsuruCount, _numTsurus) / (float)_numTsurus; //e.g. progress: 30体までは全て0, 30体からN体までの間は0.0 ~ 1.0
+            Vector2 area1EllipseRadius = Vector2.Lerp(mapData.area1EllipseRadius * tsuruLandingData.phase1RadiusUsage, mapData.area1EllipseRadius, progress);
+            Vector2 area2EllipseRadius = Vector2.Lerp(mapData.area2EllipseRadius * tsuruLandingData.phase1RadiusUsage, mapData.area2EllipseRadius, progress);
 
-            //return (snoiseForMap > mapData.noiseCutThreshold && isInArea1);
-            return (isInArea1 || isInArea2) && snoiseForMap > mapData.noiseCutThreshold;
+            bool isInArea1 = IsInEllipseDissolve(normalizedPos, mapData.area1EllipseCenter, area1EllipseRadius, mapData.dissolveAmount, mapRand);
+            bool isInArea2 = IsInEllipseDissolve(normalizedPos, mapData.area2EllipseCenter, area2EllipseRadius, mapData.dissolveAmount, mapRand);
 
-            //Debug.LogFormat("nomalizedPos.x: {0}, nomalizedPos.z: {2}", nomalizedPos.x, nomalizedPos.y);
-            //Debug.LogFormat("noiseCutThreshold = {0}, snoiseForMap = {1}", mapData.noiseCutThreshold, snoiseForMap);
+            bool isInMap = (isInArea1 || isInArea2) && snoiseForMap > mapData.noiseCutThreshold;
+
+            return isInMap;
         }
+
 
         private async UniTaskVoid DebounceShufflePositions(int delay)
         {
